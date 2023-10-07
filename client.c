@@ -30,7 +30,6 @@ int inputCommand(char *cmd){
 }
 
 bool verified(struct action input){
-    //printf("%d%d", input.coordinates[0], input.coordinates[1]);
     if((input.coordinates[0] >= 0 && input.coordinates[0] < 4) && (input.coordinates[1] >= 0 && input.coordinates[1] < 4)){
         return true;
     }
@@ -63,59 +62,55 @@ int main(int argc, char *argv[]) {
     }
 
     char cmd[1024];
-    bool status = false;
+    // bool status = false;
 
     while(1){
         scanf("%s", cmd);
         int command = inputCommand(cmd);
         int coordinates[2];
-        bool free = false;
+        bool free = true;
         struct action request;
 
         switch(command){
         case 0: //START
-            status = true;
+            // status = true;
             request = nextAction(0, coordinates, clientBoard);
-            free = true;
             break;
         case 1: //REVEAL
             scanf("%d,%d", &coordinates[0], &coordinates[1]);
             request = nextAction(0, coordinates, clientBoard);
-            //printf("AAAAAAAA%d,%d\n", coordinates[0], coordinates[1]);
             if(!verified(request)){
                 free = false;
                 request = nextAction(-5, coordinates, clientBoard); 
-                break;
             }else if(clientBoard[coordinates[0]][coordinates[1]] != -2){ //ja foi revelado
                 errorHandler("error: cell already revealed");
                 free = false;
                 request = nextAction(-5, coordinates, clientBoard);
-                break;
             }else{
                 request = nextAction(1, coordinates, clientBoard); //REVEAL
-                break;
             }
+            break;
         case 2: //FLAG
             scanf("%d,%d", &coordinates[0], &coordinates[1]);
             if(clientBoard[coordinates[0]][coordinates[1]] == -3){ //FLAGGED
                 errorHandler("error: cell already has a flag");
                 free = false;
-                break;
-            }else if(clientBoard[coordinates[0]][coordinates[1]] != 2){
+            }else if(clientBoard[coordinates[0]][coordinates[1]] != -2){
+
                 errorHandler("error: cell already revealed");
                 free = false;
-                break;
             }else{
                 request = nextAction(2, coordinates, clientBoard);
             }
+            break;
         case 4: //REMOVE FLAG
             scanf("%d,%d", &coordinates[0], &coordinates[1]);
             if(!verified(request)){
                 free = false;
-                break;
             }else{
                 request = nextAction(4, coordinates, clientBoard);
             }
+            break;
         case 5: //RESET
             request = nextAction(5, coordinates, clientBoard);
             free = true;
@@ -127,6 +122,7 @@ int main(int argc, char *argv[]) {
         case -1: //ERROR
             errorHandler("Usage: ./server <ipVersion> <port> -i <inputFilePath>");
             request = nextAction(-1, coordinates, clientBoard);
+            break;
         default:
             break;
         }
@@ -142,20 +138,19 @@ int main(int argc, char *argv[]) {
             }
             struct action result;
             count = recv(s, &result, sizeof(result), 0);
-
             if(result.type == 8) { //GAMEOVER
                 printf("GAME OVER\n");
-                status = false; //ENDGAME
+                // status = false; //ENDGAME
             } else if (result.type == 6) { //WIN
                 printf("YOU WIN!\n");
-                status = false;
+                // status = false;
             }
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     clientBoard[i][j] =  result.board[i][j];
                 }
             }
-            viewBoard(clientBoard);
+            viewBoard(result.board);
         }
     }
 

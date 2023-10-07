@@ -16,7 +16,7 @@ void reset(){
 bool win(struct action request){
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
-            if(!(request.coordinates[0] == i && request.coordinates[1] == j) && (currentBoard[i][j] != clientBoard[i][j] && clientBoard[i][j] != 8)){ //não tem bomba
+            if((currentBoard[i][j] != clientBoard[i][j] && currentBoard[i][j] != -1)){ //não tem bomba
                 return false;
             }
         }
@@ -35,68 +35,72 @@ int newStatus(struct action request){
 }
 
 struct action reveal(struct action request, struct action feedback){
+    struct action action;
     switch(newStatus(request)){
         case 6: //WIN
-            return nextAction(6, request.coordinates, clientBoard);
             reset();
+            action = nextAction(6, request.coordinates, currentBoard);
             break;
         case 8: //GAMEOVER
-            return nextAction(8, request.coordinates, clientBoard);
             reset();
+            action = nextAction(8, request.coordinates, currentBoard);
             break;
         case 3: //STATE
-            return nextAction(3, request.coordinates, clientBoard);
+            action = nextAction(3, request.coordinates, clientBoard);
             break;
     }
+
+    return action;
 }
 
 struct action actions(struct action request){
+    struct action response;
     switch (request.type)
     {
     //START
     case 0:
         reset();
         int coordinates[2] = {0,0};
-        return nextAction(0, coordinates, clientBoard);
-        //viewBoard(feedback.board);
+        response = nextAction(0, coordinates, clientBoard);
         break;
 
     //REVEAL
     case 1:
         //reveal position
-        clientBoard[coordinates[0]][coordinates[1]] = currentBoard[coordinates[0]][coordinates[1]];
-        struct action res;
-        res = reveal(request, feedback);
-        return nextAction(res.type, res.coordinates, clientBoard);
+        clientBoard[request.coordinates[0]][request.coordinates[1]] = currentBoard[request.coordinates[0]][request.coordinates[1]];
+        response = reveal(request, feedback);
         break;
 
     //FLAG
     case 2:
-        clientBoard[coordinates[0]][coordinates[1]] == -3; //FLAG
-        return nextAction(2, request.coordinates, clientBoard);
+        clientBoard[request.coordinates[0]][request.coordinates[1]] = -3; //FLAG
+        response = nextAction(2, request.coordinates, clientBoard);
         break;
 
     //REMOVE_FLAG
     case 4:
-        clientBoard[coordinates[0]][coordinates[1]] == -2;
-        return nextAction(4, request.coordinates, clientBoard);
+        clientBoard[request.coordinates[0]][request.coordinates[1]] = -2;
+        response = nextAction(4, request.coordinates, clientBoard);
         break;
 
     //RESET
     case 5:
         reset();
-        return nextAction(5, request.coordinates, clientBoard);
+        printf("starting new game\n");
+        response = nextAction(5, request.coordinates, clientBoard);
         break;
 
     //EXIT
     case 7:
         reset();
-        return nextAction(7, request.coordinates, clientBoard);
+        printf("client disconnected\n");
         break;
 
     default:
         break;
     }
+
+    return response;
 }
 
 int main(int argc, char *argv[]) {
@@ -185,12 +189,12 @@ int main(int argc, char *argv[]) {
 
             struct action feedback;
             feedback = actions(request);
-            //viewBoard(clientBoard);
 
             count = send(csock, &feedback, sizeof(feedback), 0);
-                if(count != sizeof(feedback)){
-                    logexit("send");
-                }
+            if(count != sizeof(feedback)){
+                logexit("send");
+                break;
+            }
         }
         close(csock);
     }
