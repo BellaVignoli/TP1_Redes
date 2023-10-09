@@ -39,21 +39,21 @@ struct action reveal(struct action request, struct action feedback){
     switch(newStatus(request)){
         case 6: //WIN
             reset();
-            action = nextAction(6, request.coordinates, currentBoard);
+            action = nextMove(6, request.coordinates, currentBoard);
             break;
         case 8: //GAMEOVER
             reset();
-            action = nextAction(8, request.coordinates, currentBoard);
+            action = nextMove(8, request.coordinates, currentBoard);
             break;
         case 3: //STATE
-            action = nextAction(3, request.coordinates, clientBoard);
+            action = nextMove(3, request.coordinates, clientBoard);
             break;
     }
 
     return action;
 }
 
-struct action actions(struct action request){
+struct action type(struct action request){
     struct action response;
     switch (request.type)
     {
@@ -61,7 +61,7 @@ struct action actions(struct action request){
     case 0:
         reset();
         int coordinates[2] = {0,0};
-        response = nextAction(0, coordinates, clientBoard);
+        response = nextMove(0, coordinates, clientBoard);
         break;
 
     //REVEAL
@@ -74,20 +74,20 @@ struct action actions(struct action request){
     //FLAG
     case 2:
         clientBoard[request.coordinates[0]][request.coordinates[1]] = -3; //FLAG
-        response = nextAction(2, request.coordinates, clientBoard);
+        response = nextMove(2, request.coordinates, clientBoard);
         break;
 
     //REMOVE_FLAG
     case 4:
         clientBoard[request.coordinates[0]][request.coordinates[1]] = -2;
-        response = nextAction(4, request.coordinates, clientBoard);
+        response = nextMove(4, request.coordinates, clientBoard);
         break;
 
     //RESET
     case 5:
         reset();
         printf("starting new game\n");
-        response = nextAction(5, request.coordinates, clientBoard);
+        response = nextMove(5, request.coordinates, clientBoard);
         break;
 
     //EXIT
@@ -120,15 +120,6 @@ int main(int argc, char *argv[]) {
         }
     }
     fclose(file);
-    // Fecha o arquivo de entrada
-    // Imprime matriz
-    // for (int i = 0; i < 4; i++) {
-    //     for (int j = 0; j < 4; j++) {
-    //         printf("%d\t\t", currentBoard[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n");
 
     viewBoard(currentBoard);
 
@@ -188,7 +179,7 @@ int main(int argc, char *argv[]) {
             }
 
             struct action feedback;
-            feedback = actions(request);
+            feedback = type(request);
 
             count = send(csock, &feedback, sizeof(feedback), 0);
             if(count != sizeof(feedback)){

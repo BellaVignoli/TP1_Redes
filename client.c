@@ -74,20 +74,20 @@ int main(int argc, char *argv[]) {
         switch(command){
         case 0: //START
             // status = true;
-            request = nextAction(0, coordinates, clientBoard);
+            request = nextMove(0, coordinates, clientBoard);
             break;
         case 1: //REVEAL
             scanf("%d,%d", &coordinates[0], &coordinates[1]);
-            request = nextAction(0, coordinates, clientBoard);
+            request = nextMove(0, coordinates, clientBoard);
             if(!verified(request)){
                 free = false;
-                request = nextAction(-5, coordinates, clientBoard); 
+                request = nextMove(-5, coordinates, clientBoard); 
             }else if(clientBoard[coordinates[0]][coordinates[1]] != -2){ //ja foi revelado
                 errorHandler("error: cell already revealed");
                 free = false;
-                request = nextAction(-5, coordinates, clientBoard);
+                request = nextMove(-5, coordinates, clientBoard);
             }else{
-                request = nextAction(1, coordinates, clientBoard); //REVEAL
+                request = nextMove(1, coordinates, clientBoard); //REVEAL
             }
             break;
         case 2: //FLAG
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
                 errorHandler("error: cell already revealed");
                 free = false;
             }else{
-                request = nextAction(2, coordinates, clientBoard);
+                request = nextMove(2, coordinates, clientBoard);
             }
             break;
         case 4: //REMOVE FLAG
@@ -108,20 +108,20 @@ int main(int argc, char *argv[]) {
             if(!verified(request)){
                 free = false;
             }else{
-                request = nextAction(4, coordinates, clientBoard);
+                request = nextMove(4, coordinates, clientBoard);
             }
             break;
         case 5: //RESET
-            request = nextAction(5, coordinates, clientBoard);
+            request = nextMove(5, coordinates, clientBoard);
             free = true;
             break;
         case 7: //EXIT
-            request = nextAction(7, coordinates, clientBoard);
+            request = nextMove(7, coordinates, clientBoard);
             free = true;
             break;
         case -1: //ERROR
             errorHandler("Usage: ./server <ipVersion> <port> -i <inputFilePath>");
-            request = nextAction(-1, coordinates, clientBoard);
+            request = nextMove(-1, coordinates, clientBoard);
             break;
         default:
             break;

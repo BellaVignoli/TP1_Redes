@@ -1,22 +1,22 @@
 #include "common.h" 
 
-struct action nextAction(int type, int coordinates[2], int board[4][4]){
-    struct action action;
-    action.type = type;
-    action.coordinates[0] = coordinates[0];
-    action.coordinates[1] = coordinates[1];
+struct action nextMove(int type, int coordinates[2], int board[4][4]){
+    struct action move;
+    move.type = type;
+    move.coordinates[0] = coordinates[0];
+    move.coordinates[1] = coordinates[1];
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
-            action.board[i][j] = board[i][j];
+            move.board[i][j] = board[i][j];
         }
     }
-    return action; 
+    return move; 
 }
 
-void viewBoard(int board[4][4]){
+void viewBoard(int finalBoard[4][4]){
     for(int i=0; i < 4; i++){
         for(int j=0; j < 4; j++){
-            switch (board[i][j]){
+            switch (finalBoard[i][j]){
                 case 0:
                     printf("0\t\t");
                     break;
@@ -30,7 +30,7 @@ void viewBoard(int board[4][4]){
                     printf("-\t\t");
                     break;
                 default:
-                    printf("%d\t\t", board[i][j]);
+                    printf("%d\t\t", finalBoard[i][j]);
                     break;
             }
         }
